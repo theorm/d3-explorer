@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Full example</title>
+    <style type="text/css">
+      #canvas {
+        border: 1px dashed #aaa;
+        height: 500px;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.7/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.js"></script>
+    <script src="/dist/d3-explorer.js"></script>
+</head>
+  <body>
+    <h1>Topic Modelling and Theme occurrence</h1>
+    <div id="canvas"></div>
+    <script>
+      window.lodash = window._
+      const explorer = new window['d3-explorer'].Explorer('#canvas')
+      explorer.render()
+
+      explorer.addPlot(new window['d3-explorer'].HeatBubblePlot({ title: 'Foo bubbles' }), { units: 2, id: 'foo' })
+      explorer.addPlot(new window['d3-explorer'].HeatBubblePlot({ title: 'Foo2 bubbles' }), { units: 1, id: 'foo2' })
+      explorer.addPlot(new window['d3-explorer'].BarPlot({ title: 'Bar bars' }), { units: 1, id: 'bar' })
+      explorer.addPlot(new window['d3-explorer'].BarPlot({ title: 'Baz bars' }), { units: 1, id: 'baz' })
+
+      explorer.setLabels('foo', ['one', 'two', 'three', 'four'])
+      explorer.setData('foo', _.range(30).map(() => _.range(4).map(() => Math.random())))
+      explorer.setData('foo2', _.range(30).map(() => _.range(3).map(() => Math.random())))
+
+      function generateRandomPair() {
+        return [
+          Math.random(), 
+          Math.random() + Math.random()
+        ].map(x => x > 1 ? 1.0 : x)
+      }
+
+      explorer.setData('bar', _.range(30).map(() => generateRandomPair()))
+      explorer.setData('baz', _.range(20).map(() => generateRandomPair()))
+
+      window.onresize = () => explorer.render()
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "d3-explorer",
+  "version": "1.0.0",
+  "author": "Roman Kalyakin <roman@kalyakin.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm run build:js",
+    "build:js": "rollup --config rollup.config.js --environment NODE_ENV:production",
+    "watch": "npm run watch:js",
+    "watch:js": "rollup --config rollup.config.js --watch"
+  },
+  "files": [
+    "dist/**/*.js",
+    "src/**/*.js"
+  ],
+  "main": "dist/d3-explorer.js",
+  "unpkg": "dist/d3-explorer.min.js",
+  "jsdelivr": "dist/d3-explorer.min.js",
+  "module": "src/index.js",
+  "devDependencies": {
+    "eslint": "6",
+    "rollup": "1",
+    "rollup-plugin-node-resolve": "5"
+  },
+  "dependencies": {
+    "d3": "5",
+    "lodash-es": "4"
+  }
+}
