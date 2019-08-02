@@ -5,6 +5,22 @@ import {
 import { noop, isNaN, min } from 'lodash-es'
 import { default as Plot } from './plot'
 
+/**
+ * Data Format:
+ * 
+ * Every bin is a list where every element represents a row.
+ * Value of a row can be either the display value between [0, 1]
+ * or a tuple of values: display value and reference value. The reference
+ * value is optional. It is the actual value that has been
+ * used to create the display value.
+ * 
+ * A. Three rows with display values:
+ *  `[0.3, 0.7, 0.01]`
+ * B. Two rows with display and actual values:
+ *  `[[0.1, 10], [0.35], 35]`
+ * 
+ * TODO: Display reference value. 
+ */
 export default class HeatBubblePlot extends Plot {
   constructor(options = {}) {
     super(options)

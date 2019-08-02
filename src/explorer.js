@@ -1,4 +1,4 @@
-import { isNil, assignIn, noop, get, includes, isArray } from 'lodash-es'
+import { isNil, assignIn, noop, get, includes, isArray, first } from 'lodash-es'
 import { select, scaleLinear, range, zip } from 'd3'
 import { assert, warn } from './util'
 import { default as Plot } from './plot'
@@ -33,7 +33,8 @@ const DefaultParameters = {
 const TopLevelClasses = [
   'labels',
   'bins',
-  'separators'
+  'separators',
+  'overlays',
 ]
 
 export default class Explorer {
@@ -72,6 +73,7 @@ export default class Explorer {
       this.getLabelsGroupsData(), // labels
       range(binsCount), // bins
       this.getPlotsTitlesData(), // separators / titles
+      range(this.plots.length), // overlays
     ]
 
     this.svg.selectAll('g.toplevel')
@@ -83,6 +85,7 @@ export default class Explorer {
         if (index === 0) return this._renderLabels(g)
         if (index === 1) return this._renderBins(g)
         if (index === 2) return this._renderSeparators(g)
+        if (index === 3) return this._renderOverlay(g)
       })
   }
 
@@ -103,6 +106,10 @@ export default class Explorer {
 
   getGroupsData() {
     return this.plots.map(([id]) => get(this.data[id], 'data', []))
+  }
+
+  getDataForGroup(groupId) {
+    return get(this.data[groupId], 'data', [])
   }
 
   getLabelsGroupsData() {
@@ -214,7 +221,7 @@ export default class Explorer {
       .attr('transform', ({ unitsOffset }) => `translate(0, ${unitsOffset * this.getUnitSize() + margin.top})`)
       .each(function (d) {
         const { id, plot, units, stepIndex } = d
-        plot.renderStep(select(this), id, units, get(explorer.data[id], 'data', []), stepIndex, explorer)
+        plot.renderStep(select(this), id, units, get(explorer.data[id], 'data', []), stepIndex, explorer, xScale(stepIndex))
       })
   }
 
@@ -266,6 +273,25 @@ export default class Explorer {
     })
   }
 
+  _renderOverlay(selection) {
+    const { margin } = this.parameters
+
+    const g = selection
+      .style('pointer-events', 'all')
+      .attr('transform', `translate(${this.parameters.labels.offset + margin.left}, 0)`)
+      .selectAll('g.overlay')
+      .data(this._dataWithRenderMeta.bind(this))
+      .join('g')
+      .attr('class', ({ id }) => `overlay ${id.replace(' ', '-')}`)
+      .attr('transform', ({ unitsOffset }) => `translate(0, ${unitsOffset * this.getUnitSize() + margin.top})`)
+
+    const explorer = this
+    g.each(function(d) {
+      const { id, units, plot } = d
+      plot.renderOverlay(select(this), id, units, explorer)
+    })
+  }
+
   _dataWithRenderMeta(d) {
     return d.map((data, idx) => {
       const previousPlots = this.plots.slice(0, idx)
@@ -274,6 +300,11 @@ export default class Explorer {
       const [id, plot, units] = this.plots[idx]
       return { data, id, plot, units, unitsOffset }
     })
+  }
+
+  getOverlayForPlot(plotId) {
+    const index = this.plots.map(([id]) => id).indexOf(plotId)
+    return this.svg.selectAll(`g.overlay:nth-child(${index + 1})`)
   }
 
   addPlot(plot, options = {}) {

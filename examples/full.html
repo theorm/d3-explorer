@@ -36,8 +36,9 @@
         ].map(x => x > 1 ? 1.0 : x)
       }
 
+      explorer.setLabels('bar', ['Asdf', 'B'])
       explorer.setData('bar', _.range(30).map(() => generateRandomPair()))
-      explorer.setData('baz', _.range(20).map(() => generateRandomPair()))
+      explorer.setData('baz', _.range(20).map(() => generateRandomPair().map(v => [v, v * 100])))
 
       window.onresize = () => explorer.render()
 
