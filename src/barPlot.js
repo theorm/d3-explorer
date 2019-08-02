@@ -36,7 +36,7 @@ export default class BarPlot extends Plot {
       .attr('x', xOffset)
       .attr('y', d => this.margin.top + yScale(d || 0))
       .attr('width', barWidth)
-      .attr('height', d => usableHeight - yScale(d || 0) - this.margin.bottom)
+      .attr('height', d => usableHeight - yScale(d || 0))
       .attr('fill', (d, i) => this.colours.bars[i])
   }
 }

@@ -89,6 +89,7 @@ export default class HeatBubblePlot extends Plot {
       .attr('fill', d => this._getColour(d))
       .attr('r', d => (parseFloat(d.val) > 0 ? d.val * maxCircleRadius : 0))
 
+    const colours = this.colours
     // overlay mouse event catching circle
     group
       .selectAll('g.hotspots')
@@ -103,7 +104,7 @@ export default class HeatBubblePlot extends Plot {
       .attr('fill', 'none')
       .attr('r', maxCircleRadius)
       .on('mouseover', function() {
-        select(this).style('fill', this.colours.overlay.selected)
+        select(this).style('fill', colours.overlay.selected)
       })
       .on('mouseout', function() {
         select(this).style('fill', 'none')
