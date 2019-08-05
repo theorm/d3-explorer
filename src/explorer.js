@@ -225,7 +225,7 @@ export default class Explorer {
           v.stepIndex = stepIndex
           return v
         })
-      })
+      }, d => d.id)
       .join('g')
       .attr('class', ({ id }) => `plot ${id.replace(' ', '-')}`)
       .attr('transform', ({ unitsOffset }) => `translate(0, ${unitsOffset * this.getUnitSize() + margin.top})`)
@@ -331,6 +331,11 @@ export default class Explorer {
       plot,
       units
     ])
+    this.render()
+  }
+
+  removePlot(plotId) {
+    this.plots = this.plots.filter(([id]) => id !== plotId)
     this.render()
   }
 

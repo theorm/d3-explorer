@@ -16,6 +16,10 @@
   <body>
     <h1>Topic Modelling and Theme occurrence</h1>
     <div id="canvas"></div>
+    <div>
+      <button onclick="removePlot('foo2')">Remove last bubble plot</button>
+      <button onclick="setData()">Update data</button>
+    </div>
     <script>
       const explorer = new window['d3-explorer'].Explorer('#canvas')
       explorer.render()
@@ -25,9 +29,6 @@
       explorer.addPlot(new window['d3-explorer'].BarPlot({ title: 'Bar bars' }), { units: 1, id: 'bar' })
       explorer.addPlot(new window['d3-explorer'].BarPlot({ title: 'Baz bars' }), { units: 1, id: 'baz' })
 
-      explorer.setLabels('foo', ['one', 'two', 'three', 'four'])
-      explorer.setData('foo', _.range(30).map(() => _.range(4).map(() => Math.random())))
-      explorer.setData('foo2', _.range(30).map(() => _.range(3).map(() => Math.random())))
 
       function generateRandomPair() {
         return [
@@ -36,13 +37,25 @@
         ].map(x => x > 1 ? 1.0 : x)
       }
 
-      explorer.setLabels('bar', ['Asdf', 'B'])
-      explorer.setData('bar', _.range(30).map(() => generateRandomPair()))
-      explorer.setData('baz', _.range(20).map(() => generateRandomPair().map(v => [v, v * 100])))
+      function setData() {
+        explorer.setLabels('foo', ['one', 'two', 'three', 'four'])
+        explorer.setData('foo', _.range(30).map(() => _.range(4).map(() => Math.random())))
+        explorer.setData('foo2', _.range(30).map(() => _.range(3).map(() => Math.random())))
+
+        explorer.setLabels('bar', ['Asdf', 'B'])
+        explorer.setData('bar', _.range(30).map(() => generateRandomPair()))
+        explorer.setData('baz', _.range(20).map(() => generateRandomPair().map(v => [v, v * 100])))
+      }
+
+      setData()
 
       window.onresize = () => {
         console.log('Maximum number of bins suggested: ', explorer.getMaximumOptimalBinsCount())
         explorer.render()
+      }
+
+      function removePlot(plotId) {
+        explorer.removePlot(plotId)
       }
 
     </script>
