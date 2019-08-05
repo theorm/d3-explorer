@@ -332,6 +332,8 @@ export default class Explorer {
       units
     ])
     this.render()
+
+    return id
   }
 
   removePlot(plotId) {
@@ -362,6 +364,11 @@ export default class Explorer {
     plotData.data = data
     this.data[plotId] = plotData
 
+    this.render()
+  }
+
+  setSelectedBin(idx) {
+    this.selectedBin = idx
     this.render()
   }
 }
