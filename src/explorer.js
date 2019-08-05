@@ -104,6 +104,16 @@ export default class Explorer {
     }, 0)
   }
 
+  getMaximumOptimalBinsCount() {
+    const { width } = this._getWH()
+    const { margin, labels } = this.parameters
+    const binsPaneWidth = width - labels.offset - margin.left - margin.right
+    const minBinWidth = 20
+
+    const val = Math.floor(binsPaneWidth / minBinWidth)
+    return val > 0 ? val : 0
+  }
+
   getGroupsData() {
     return this.plots.map(([id]) => get(this.data[id], 'data', []))
   }

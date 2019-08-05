@@ -40,7 +40,10 @@
       explorer.setData('bar', _.range(30).map(() => generateRandomPair()))
       explorer.setData('baz', _.range(20).map(() => generateRandomPair().map(v => [v, v * 100])))
 
-      window.onresize = () => explorer.render()
+      window.onresize = () => {
+        console.log('Maximum number of bins suggested: ', explorer.getMaximumOptimalBinsCount())
+        explorer.render()
+      }
 
     </script>
   </body>
