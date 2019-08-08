@@ -40,6 +40,7 @@ export default class HeatBubblePlot extends Plot {
         mean: '#eeeeee'
       }
     }
+    this.fontSize = options.fontSize || 10
   }
 
   renderLabels(group, id, units, labels, explorer) {
@@ -58,6 +59,7 @@ export default class HeatBubblePlot extends Plot {
       .attr('dy', '0.35em')
       .attr('x', labelsOffset - labelsMargin)
       .attr('text-anchor', 'end')
+      .style('font-size', `${this.fontSize}px`)
       .style('cursor', 'pointer')
       .text(d => d)
       .on('click', function(data, index) {
