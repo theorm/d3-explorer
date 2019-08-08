@@ -18,10 +18,13 @@
   "jsdelivr": "dist/d3-explorer.min.js",
   "module": "src/index.js",
   "devDependencies": {
+    "@babel/core": "7",
+    "@babel/preset-env": "7",
     "eslint": "6",
     "rollup": "1",
+    "rollup-plugin-babel": "4",
     "rollup-plugin-node-resolve": "5",
-    "rollup-plugin-terser": "^5.1.1"
+    "rollup-plugin-terser": "5"
   },
   "dependencies": {
     "d3": "5",

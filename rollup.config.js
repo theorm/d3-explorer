@@ -1,4 +1,5 @@
 // import resolve from 'rollup-plugin-node-resolve'
+import babel from 'rollup-plugin-babel'
 import { terser } from 'rollup-plugin-terser'
 import * as meta from "./package.json";
 
@@ -18,6 +19,22 @@ const config = {
   },
   plugins: [
     // resolve()
+    babel({
+      exclude: 'node_modules/**',
+      presets: [
+        [
+          '@babel/env',
+          {
+            modules: 'false',
+            targets: {
+              browsers: '> 1%, IE 11, not op_mini all, not dead',
+              node: 8
+            },
+            useBuiltIns: 'usage'
+          }
+        ]
+      ]
+    })
   ]
 };
 
