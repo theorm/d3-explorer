@@ -21,7 +21,14 @@
       <button onclick="setData()">Update data</button>
     </div>
     <script>
-      const explorer = new window['d3-explorer'].Explorer('#canvas')
+      const explorer = new window['d3-explorer'].Explorer('#canvas', {
+        parameters: {
+          handlers: {
+            onBinOver: idx => console.log(`Entered bin ${idx} ${Date.now()}`),
+            onBinOut: idx => console.log(`Exited bin ${idx} ${Date.now()}`)
+          }
+        }
+      })
       explorer.render()
 
       explorer.addPlot(new window['d3-explorer'].HeatBubblePlot({ title: 'Foo bubbles' }), { units: 2, id: 'foo' })

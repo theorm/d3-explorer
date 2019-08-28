@@ -384,14 +384,22 @@ function () {
         return d;
       }).join('g').attr('class', 'step').attr('transform', function (d, i) {
         return "translate(".concat(xScale(i), ", 0)");
-      }).on('mouseover', function () {
+      }).on('mouseover', function (d, index) {
         d3.select(this).select('.highlight').filter(filterOutSelectedHighlight).style('fill', params.colours.bin.highlight);
-      }).on('mouseout', function () {
+        this.selectedBin = index;
+        var _params$handlers$onBi = params.handlers.onBinOver,
+            onBinOver = _params$handlers$onBi === void 0 ? lodashEs.noop : _params$handlers$onBi;
+        onBinOver(index);
+      }).on('mouseout', function (d, index) {
         d3.select(this).select('.highlight').filter(filterOutSelectedHighlight).style('fill', 'none');
+        this.selectedBin = index;
+        var _params$handlers$onBi2 = params.handlers.onBinOut,
+            onBinOut = _params$handlers$onBi2 === void 0 ? lodashEs.noop : _params$handlers$onBi2;
+        onBinOut(index);
       }).on('click', function (d, index) {
         _this6.selectedBin = index;
-        var _params$handlers$onBi = params.handlers.onBinSelected,
-            onBinSelected = _params$handlers$onBi === void 0 ? lodashEs.noop : _params$handlers$onBi;
+        var _params$handlers$onBi3 = params.handlers.onBinSelected,
+            onBinSelected = _params$handlers$onBi3 === void 0 ? lodashEs.noop : _params$handlers$onBi3;
         onBinSelected(index);
 
         _this6.render();

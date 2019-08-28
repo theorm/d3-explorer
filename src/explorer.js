@@ -177,11 +177,19 @@ export default class Explorer {
       .join('g')
       .attr('class', 'step')
       .attr('transform', (d, i) => `translate(${xScale(i)}, 0)`)
-      .on('mouseover', function () {
+      .on('mouseover', function (d, index) {
         select(this).select('.highlight').filter(filterOutSelectedHighlight).style('fill', params.colours.bin.highlight)
+
+        this.selectedBin = index
+        const { onBinOver = noop } = params.handlers
+        onBinOver(index)
       })
-      .on('mouseout', function () {
+      .on('mouseout', function (d, index) {
         select(this).select('.highlight').filter(filterOutSelectedHighlight).style('fill', 'none')
+
+        this.selectedBin = index
+        const { onBinOut = noop } = params.handlers
+        onBinOut(index)
       })
       .on('click', (d, index) => {
         this.selectedBin = index
