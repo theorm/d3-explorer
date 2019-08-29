@@ -33,7 +33,7 @@ export default class BarPlot extends Plot {
     this.colours = options.colours || {
       bars: ['#99999955', '#999999'],
       font: '#550',
-      bubble: '#ddddddaa'
+      bubble: '#bbbbbbcc'
     }
     this.fontSize = options.fontSize || 10
   }
@@ -86,12 +86,13 @@ export default class BarPlot extends Plot {
       .on('mouseover', (d) => {
         const overlay = explorer.getOverlayForPlot(id)
         const { data } = d
+        // console.log('DDD', data)
         overlay
           .selectAll('g.hotspot')
           .attr('opacity', 1)
-          .attr('transform', `translate(${binOffset}, ${-this.fontSize * 1.5})`)
+          .attr('transform', `translate(${binOffset}, ${-this.fontSize * 2.5})`)
           .selectAll('text')
-          .data(data)
+          .data(reverse(clone(data)))
           .join('text')
           .attr('text-anchor', 'middle')
           .attr('dy', (d, idx) => this.fontSize * (idx + 1) + this.fontSize / 2)
@@ -147,7 +148,7 @@ export default class BarPlot extends Plot {
       .attr('width', rectSize)
       .attr('height', rectSize)
       .attr('x',  - rectSize / 2 + binWidth / 2)
-      .attr('rx', rectSize / 2.4)
+      .attr('rx', rectSize * 0.3)
   }
 
 }

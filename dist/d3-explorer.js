@@ -820,7 +820,7 @@ function (_Plot) {
     _this.colours = options.colours || {
       bars: ['#99999955', '#999999'],
       font: '#550',
-      bubble: '#ddddddaa'
+      bubble: '#bbbbbbcc'
     };
     _this.fontSize = options.fontSize || 10;
     return _this;
@@ -866,8 +866,9 @@ function (_Plot) {
       var yScale = d3.scaleLinear().domain([0, 1]).range([usableHeight, 0]);
       group.on('mouseover', function (d) {
         var overlay = explorer.getOverlayForPlot(id);
-        var data = d.data;
-        overlay.selectAll('g.hotspot').attr('opacity', 1).attr('transform', "translate(".concat(binOffset, ", ").concat(-_this3.fontSize * 1.5, ")")).selectAll('text').data(data).join('text').attr('text-anchor', 'middle').attr('dy', function (d, idx) {
+        var data = d.data; // console.log('DDD', data)
+
+        overlay.selectAll('g.hotspot').attr('opacity', 1).attr('transform', "translate(".concat(binOffset, ", ").concat(-_this3.fontSize * 2.5, ")")).selectAll('text').data(lodashEs.reverse(lodashEs.clone(data))).join('text').attr('text-anchor', 'middle').attr('dy', function (d, idx) {
           return _this3.fontSize * (idx + 1) + _this3.fontSize / 2;
         }).attr('dx', binWidth / 2).style('font-size', "".concat(_this3.fontSize, "px")).style('font-weight', 'bold').text(function (d) {
           var ref = getReferenceValue(d);
@@ -898,7 +899,7 @@ function (_Plot) {
       var rectSize = this.fontSize * 3;
       hotspot.selectAll('rect').data(function (d) {
         return [d];
-      }).join('rect').attr('fill', this.colours.bubble).attr('width', rectSize).attr('height', rectSize).attr('x', -rectSize / 2 + binWidth / 2).attr('rx', rectSize / 2.4);
+      }).join('rect').attr('fill', this.colours.bubble).attr('width', rectSize).attr('height', rectSize).attr('x', -rectSize / 2 + binWidth / 2).attr('rx', rectSize * 0.3);
     }
   }]);
 
