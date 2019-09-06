@@ -1,8 +1,8 @@
 (function (global, factory) {
-typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('core-js/modules/es6.regexp.replace'), require('lodash-es'), require('d3'), require('core-js/modules/es6.regexp.to-string'), require('core-js/modules/es6.object.to-string')) :
-typeof define === 'function' && define.amd ? define(['exports', 'core-js/modules/es6.regexp.replace', 'lodash-es', 'd3', 'core-js/modules/es6.regexp.to-string', 'core-js/modules/es6.object.to-string'], factory) :
-(global = global || self, factory(global['d3-explorer'] = global['d3-explorer'] || {}, null, global._, global.d3));
-}(this, function (exports, es6_regexp_replace, lodashEs, d3) { 'use strict';
+typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('lodash-es'), require('d3')) :
+typeof define === 'function' && define.amd ? define(['exports', 'lodash-es', 'd3'], factory) :
+(global = global || self, factory(global['d3-explorer'] = global['d3-explorer'] || {}, global._, global.d3));
+}(this, function (exports, lodashEs, d3) { 'use strict';
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -619,6 +619,33 @@ function () {
   return Explorer;
 }();
 
+function getColourWithCategoricalCutoff(_ref, colours) {
+  var val = _ref.val,
+      mean = _ref.mean,
+      std = _ref.std;
+
+  var _get = lodashEs.get(colours, 'value', {}),
+      _get$outlierAbove = _get.outlierAbove,
+      colourAbove = _get$outlierAbove === void 0 ? '#00ff33' : _get$outlierAbove,
+      _get$outlierBelow = _get.outlierBelow,
+      colourBelow = _get$outlierBelow === void 0 ? '#ff0000' : _get$outlierBelow,
+      _get$mean = _get.mean,
+      colourNeutral = _get$mean === void 0 ? '#eeeeee' : _get$mean;
+
+  if (lodashEs.isNaN(val)) return 'none';
+
+  var colour = function () {
+    if (val > mean + std) return colourAbove;
+    if (val < mean - std) return colourBelow;
+    return colourNeutral;
+  }();
+
+  var sval = Math.abs(val - mean) * 2;
+  if (sval > 1) sval = 1.0;
+  if (sval < 0) sval = 0.0;
+  var opacity = (55 + Math.round(sval * 200)).toString(16);
+  return colour + (opacity.length === 1 ? "0".concat(opacity) : opacity);
+}
 /**
  * Data Format:
  * 
@@ -635,6 +662,7 @@ function () {
  * 
  * TODO: Display reference value. 
  */
+
 
 var HeatBubblePlot =
 /*#__PURE__*/
@@ -664,6 +692,7 @@ function (_Plot) {
         mean: '#eeeeee'
       }
     };
+    _this.colourFn = options.colourFn || getColourWithCategoricalCutoff;
     _this.fontSize = options.fontSize || 10;
     return _this;
   }
@@ -720,8 +749,8 @@ function (_Plot) {
         });
       }).join('circle').attr('cx', 0).attr('cy', function (d, i) {
         return yScale(i);
-      }).attr('fill', function (d) {
-        return _this2._getColour(d);
+      }).attr('fill', function () {
+        return _this2._getColour.apply(_this2, arguments);
       }).attr('r', function (d) {
         return parseFloat(d.val) > 0 ? d.val * maxCircleRadius : 0;
       });
@@ -751,23 +780,7 @@ function (_Plot) {
   }, {
     key: "_getColour",
     value: function _getColour(d) {
-      if (lodashEs.isNaN(d.val)) return 'none';
-      var _this$colours$value = this.colours.value,
-          colourAbove = _this$colours$value.outlierAbove,
-          colourBelow = _this$colours$value.outlierBelow,
-          colourNeutral = _this$colours$value.mean;
-
-      var colour = function () {
-        if (d.val > d.mean + d.std) return colourAbove;
-        if (d.val < d.mean - d.std) return colourBelow;
-        return colourNeutral;
-      }();
-
-      var sval = Math.abs(d.val - d.mean) * 2;
-      if (sval > 1) sval = 1.0;
-      if (sval < 0) sval = 0.0;
-      var opacity = (55 + Math.round(sval * 200)).toString(16);
-      return colour + (opacity.length === 1 ? "0".concat(opacity) : opacity);
+      return this.colourFn(d, this.colours);
     }
   }]);
 

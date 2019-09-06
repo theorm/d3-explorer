@@ -2,8 +2,27 @@ import {
   scalePoint, range, select,
   deviation as getDeviation, mean as getMean
 } from 'd3'
-import { noop, isNaN, min } from 'lodash-es'
+import { get, noop, isNaN, min } from 'lodash-es'
 import { default as Plot } from './plot'
+
+function getColourWithCategoricalCutoff({ val, mean, std}, colours) {
+  const {
+    outlierAbove: colourAbove = '#00ff33',
+    outlierBelow: colourBelow = '#ff0000',
+    mean: colourNeutral = '#eeeeee'
+  } = get(colours, 'value', {})
+  if (isNaN(val)) return 'none'
+  const colour = (() => {
+    if (val > mean + std) return colourAbove
+    if (val < mean - std) return colourBelow
+    return colourNeutral
+  })()
+  let sval = Math.abs(val - mean) * 2
+  if (sval > 1) sval = 1.0
+  if (sval < 0) sval = 0.0
+  const opacity = (55 + Math.round(sval * 200)).toString(16)
+  return colour + (opacity.length === 1 ? `0${opacity}` : opacity)
+}
 
 /**
  * Data Format:
@@ -40,6 +59,7 @@ export default class HeatBubblePlot extends Plot {
         mean: '#eeeeee'
       }
     }
+    this.colourFn = options.colourFn || getColourWithCategoricalCutoff
     this.fontSize = options.fontSize || 10
   }
 
@@ -104,7 +124,7 @@ export default class HeatBubblePlot extends Plot {
       .join('circle')
       .attr('cx', 0)
       .attr('cy', (d, i) => yScale(i))
-      .attr('fill', d => this._getColour(d))
+      .attr('fill', (...args) => this._getColour(...args))
       .attr('r', d => (parseFloat(d.val) > 0 ? d.val * maxCircleRadius : 0))
 
     const colours = this.colours
@@ -135,21 +155,6 @@ export default class HeatBubblePlot extends Plot {
   }
 
   _getColour(d) {
-    if (isNaN(d.val)) return 'none'
-    const {
-      outlierAbove: colourAbove,
-      outlierBelow: colourBelow,
-      mean: colourNeutral
-    } = this.colours.value
-    const colour = (() => {
-      if (d.val > d.mean + d.std) return colourAbove
-      if (d.val < d.mean - d.std) return colourBelow
-      return colourNeutral
-    })()
-    let sval = Math.abs(d.val - d.mean) * 2
-    if (sval > 1) sval = 1.0
-    if (sval < 0) sval = 0.0
-    const opacity = (55 + Math.round(sval * 200)).toString(16)
-    return colour + (opacity.length === 1 ? `0${opacity}` : opacity)
+    return this.colourFn(d, this.colours)
   }
 }

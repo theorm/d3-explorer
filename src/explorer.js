@@ -1,4 +1,4 @@
-import { isNil, assignIn, noop, get, includes, isArray, first } from 'lodash-es'
+import { isNil, assignIn, noop, get, includes, isArray } from 'lodash-es'
 import { select, scaleLinear, range, zip } from 'd3'
 import { assert, warn } from './util'
 import { default as Plot } from './plot'
