@@ -243,6 +243,9 @@ function () {
         if (index === 2) return _this._renderSeparators(g);
         if (index === 3) return _this._renderOverlay(g);
       });
+      var _this$parameters$hand = this.parameters.handlers.onRendered,
+          onRendered = _this$parameters$hand === void 0 ? lodashEs.noop : _this$parameters$hand;
+      onRendered();
     }
   }, {
     key: "getBinWidth",
