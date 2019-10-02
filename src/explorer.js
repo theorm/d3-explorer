@@ -87,6 +87,9 @@ export default class Explorer {
         if (index === 2) return this._renderSeparators(g)
         if (index === 3) return this._renderOverlay(g)
       })
+
+    const { onRendered = noop } = this.parameters.handlers
+    onRendered()
   }
 
   getBinWidth() {
