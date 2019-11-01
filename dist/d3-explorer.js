@@ -147,7 +147,7 @@ function () {
 
   }, {
     key: "renderStep",
-    value: function renderStep(group, id, units, data, stepIndex, explorer, binOffset) {} // eslint-disable-next-line no-unused-vars
+    value: function renderStep(group, id, units, data, stepIndex, explorer, binOffset, maxValue) {} // eslint-disable-next-line no-unused-vars
 
   }, {
     key: "renderOverlay",
@@ -205,6 +205,7 @@ function () {
     this.parameters = lodashEs.assignIn({}, DefaultParameters, options.parameters);
     this.plots = [];
     this.data = {};
+    this.maxValues = {};
   }
 
   _createClass(Explorer, [{
@@ -443,7 +444,8 @@ function () {
             plot = d.plot,
             units = d.units,
             stepIndex = d.stepIndex;
-        plot.renderStep(d3.select(this), id, units, lodashEs.get(explorer.data[id], 'data', []), stepIndex, explorer, xScale(stepIndex));
+        var maxValue = explorer.maxValues[id];
+        plot.renderStep(d3.select(this), id, units, lodashEs.get(explorer.data[id], 'data', []), stepIndex, explorer, xScale(stepIndex), maxValue);
       });
     }
   }, {
@@ -517,7 +519,8 @@ function () {
     value: function _dataWithRenderMeta(d) {
       var _this9 = this;
 
-      return d.map(function (data, idx) {
+      var dd = lodashEs.isArray(d) ? d : [d];
+      return dd.map(function (data, idx) {
         var previousPlots = _this9.plots.slice(0, idx);
 
         var unitsOffset = previousPlots.reduce(function (acc, _ref22) {
@@ -533,7 +536,7 @@ function () {
             units = _this9$plots$idx[2];
 
         return {
-          data: data,
+          data: lodashEs.isArray(data) ? data : [data],
           id: id,
           plot: plot,
           units: units,
@@ -609,6 +612,14 @@ function () {
       var plotData = lodashEs.get(this.data, plotId, {});
       plotData.data = data;
       this.data[plotId] = plotData;
+      this.render();
+    }
+  }, {
+    key: "setMaxValue",
+    value: function setMaxValue(plotId, maxValue) {
+      assert(lodashEs.includes(this.getPlotIds(), plotId), "Unknown plot ID: \"".concat(plotId, "\""));
+      assert(lodashEs.isNumber(maxValue) || lodashEs.isUndefined(maxValue), "Unknown value type provided: ".concat(maxValue));
+      this.maxValues[plotId] = maxValue;
       this.render();
     }
   }, {
@@ -791,25 +802,36 @@ function (_Plot) {
 }(Plot);
 
 var getDisplayValue = function getDisplayValue(d) {
-  return lodashEs.isArray(d) ? d[0] : d;
-};
+  return d;
+}; // isArray(d) ? d[0] : d
+
 
 var getReferenceValue = function getReferenceValue(d) {
-  return lodashEs.isArray(d) ? d[1] : undefined;
+  return d;
+}; // isArray(d) ? d[1] : undefined
+
+
+var getDataDomain = function getDataDomain(data, maxValue) {
+  if (data.length === 0) return [0, 1];
+  var calculatedMaxValue = d3.max(data.map(function (d) {
+    return lodashEs.isArray(d) ? d3.max(d) : d;
+  }));
+  var minValue = d3.min(data.map(function (d) {
+    return lodashEs.isArray(d) ? d3.min(d) : d;
+  }));
+  return [minValue < 0 ? minValue : 0, lodashEs.isFinite(maxValue) ? maxValue : calculatedMaxValue];
 };
 /**
  * Data Format:
  * 
  * Every bin is a 1 or 2 elements list where every element represents a bar.
- * Value of a row can be either the display value between [0, 1]
- * or a tuple of values: display value and reference value. The reference
- * value is optional. It is the actual value that has been used to 
- * create the display value.
  * 
- * A. Two bars with display values:
+ * A. Two bars:
  *  `[0.3, 0.7]`
- * B. Two bars with display and actual values:
- *  `[[0.3, 30], [0.75, 75]]`
+ * B. One bar:
+ *  `[0.3]`
+ * C. One bar:
+ *  `0.3`
  */
 
 
@@ -871,7 +893,7 @@ function (_Plot) {
     }
   }, {
     key: "renderStep",
-    value: function renderStep(group, id, units, data, stepIndex, explorer, binOffset) {
+    value: function renderStep(group, id, units, data, stepIndex, explorer, binOffset, maxValue) {
       var _this3 = this;
 
       var height = explorer.getUnitSize() * units;
@@ -879,11 +901,13 @@ function (_Plot) {
       var barWidth = binWidth * 0.9;
       var xOffset = (binWidth - barWidth) / 2;
       var usableHeight = height - this.margin.bottom - this.margin.top;
-      var yScale = d3.scaleLinear().domain([0, 1]).range([usableHeight, 0]);
+      data = data.map(function (d) {
+        return lodashEs.isArray(d) ? d : [d];
+      });
+      var yScale = d3.scaleLinear().domain(getDataDomain(data, maxValue)).range([usableHeight, 0]);
       group.on('mouseover', function (d) {
         var overlay = explorer.getOverlayForPlot(id);
-        var data = d.data; // console.log('DDD', data)
-
+        var data = d.data;
         overlay.selectAll('g.hotspot').attr('opacity', 1).attr('transform', "translate(".concat(binOffset, ", ").concat(-_this3.fontSize * 2.5, ")")).selectAll('text').data(lodashEs.reverse(lodashEs.clone(data))).join('text').attr('text-anchor', 'middle').attr('dy', function (d, idx) {
           return _this3.fontSize * (idx + 1) + _this3.fontSize / 2;
         }).attr('dx', binWidth / 2).style('font-size', "".concat(_this3.fontSize, "px")).style('font-weight', 'bold').text(function (d) {

@@ -11,7 +11,7 @@ export default class Plot {
   renderLabels(group, id, units, labels, explorer) {}
 
   // eslint-disable-next-line no-unused-vars
-  renderStep(group, id, units, data, stepIndex, explorer, binOffset) {}
+  renderStep(group, id, units, data, stepIndex, explorer, binOffset, maxValue) {}
 
   // eslint-disable-next-line no-unused-vars
   renderOverlay(group, id, units, explorer) {}

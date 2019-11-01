@@ -1,4 +1,8 @@
-import { isNil, assignIn, noop, get, includes, isArray } from 'lodash-es'
+import {
+  isNil, assignIn, noop,
+  get, includes, isArray,
+  isNumber, isUndefined
+} from 'lodash-es'
 import { select, scaleLinear, range, zip } from 'd3'
 import { assert, warn } from './util'
 import { default as Plot } from './plot'
@@ -54,6 +58,7 @@ export default class Explorer {
 
     this.plots = []
     this.data = {}
+    this.maxValues = {}
   }
 
   _getWH() {
@@ -242,7 +247,8 @@ export default class Explorer {
       .attr('transform', ({ unitsOffset }) => `translate(0, ${unitsOffset * this.getUnitSize() + margin.top})`)
       .each(function (d) {
         const { id, plot, units, stepIndex } = d
-        plot.renderStep(select(this), id, units, get(explorer.data[id], 'data', []), stepIndex, explorer, xScale(stepIndex))
+        const maxValue = explorer.maxValues[id]
+        plot.renderStep(select(this), id, units, get(explorer.data[id], 'data', []), stepIndex, explorer, xScale(stepIndex), maxValue)
       })
   }
 
@@ -314,12 +320,13 @@ export default class Explorer {
   }
 
   _dataWithRenderMeta(d) {
-    return d.map((data, idx) => {
+    const dd = isArray(d) ? d : [d]
+    return dd.map((data, idx) => {
       const previousPlots = this.plots.slice(0, idx)
       const unitsOffset = previousPlots.reduce((acc, [,,units]) => acc + units, 0)
   
       const [id, plot, units] = this.plots[idx]
-      return { data, id, plot, units, unitsOffset }
+      return { data: isArray(data) ? data : [data], id, plot, units, unitsOffset }
     })
   }
 
@@ -374,6 +381,14 @@ export default class Explorer {
     const plotData = get(this.data, plotId, {})
     plotData.data = data
     this.data[plotId] = plotData
+
+    this.render()
+  }
+
+  setMaxValue(plotId, maxValue) {
+    assert(includes(this.getPlotIds(), plotId), `Unknown plot ID: "${plotId}"`)
+    assert(isNumber(maxValue) || isUndefined(maxValue), `Unknown value type provided: ${maxValue}`)
+    this.maxValues[plotId] = maxValue
 
     this.render()
   }

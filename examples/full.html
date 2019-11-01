@@ -35,6 +35,7 @@
       explorer.addPlot(new window['d3-explorer'].HeatBubblePlot({ title: 'Foo2 bubbles' }), { units: 1, id: 'foo2' })
       explorer.addPlot(new window['d3-explorer'].BarPlot({ title: 'Bar bars' }), { units: 1, id: 'bar' })
       explorer.addPlot(new window['d3-explorer'].BarPlot({ title: 'Baz bars' }), { units: 1, id: 'baz' })
+      explorer.addPlot(new window['d3-explorer'].BarPlot({ title: 'Bang bars' }), { units: 1, id: 'bang' })
 
 
       function generateRandomPair() {
@@ -50,8 +51,11 @@
         explorer.setData('foo2', _.range(30).map(() => _.range(3).map(() => Math.random())))
 
         explorer.setLabels('bar', ['Asdf', 'B'])
-        explorer.setData('bar', _.range(30).map(() => generateRandomPair()))
-        explorer.setData('baz', _.range(20).map(() => generateRandomPair().map(v => [v, v * 100])))
+        explorer.setData('bar', _.range(30).map(() => generateRandomPair().map(v => v * 20)))
+        explorer.setData('baz', _.range(20).map(() => generateRandomPair().map(v => v * 70)))
+        explorer.setData('bang', _.range(20).map(() => Math.random() * 50))
+
+        explorer.setMaxValue('bar', 50)        
       }
 
       setData()

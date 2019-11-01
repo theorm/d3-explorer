@@ -1,23 +1,33 @@
 import { reverse, clone, isArray, isFinite, round } from 'lodash-es'
-import { scaleLinear, scalePoint, range } from 'd3'
+import { scaleLinear, scalePoint, range, max, min } from 'd3'
 import { default as Plot } from './plot'
 
-const getDisplayValue = d => isArray(d) ? d[0] : d
-const getReferenceValue = d => isArray(d) ? d[1] : undefined
+const getDisplayValue = d => d // isArray(d) ? d[0] : d
+const getReferenceValue = d => d // isArray(d) ? d[1] : undefined
+
+const getDataDomain = (data, maxValue) => {
+  if (data.length === 0) return [0, 1]
+
+  const calculatedMaxValue = max(data.map(d => isArray(d) ? max(d) : d))
+  const minValue = min(data.map(d => isArray(d) ? min(d) : d))
+
+  return [
+    minValue < 0 ? minValue : 0,
+    isFinite(maxValue) ? maxValue : calculatedMaxValue
+  ]
+}
 
 /**
  * Data Format:
  * 
  * Every bin is a 1 or 2 elements list where every element represents a bar.
- * Value of a row can be either the display value between [0, 1]
- * or a tuple of values: display value and reference value. The reference
- * value is optional. It is the actual value that has been used to 
- * create the display value.
  * 
- * A. Two bars with display values:
+ * A. Two bars:
  *  `[0.3, 0.7]`
- * B. Two bars with display and actual values:
- *  `[[0.3, 30], [0.75, 75]]`
+ * B. One bar:
+ *  `[0.3]`
+ * C. One bar:
+ *  `0.3`
  */
 export default class BarPlot extends Plot {
   constructor(options = {}) {
@@ -71,22 +81,23 @@ export default class BarPlot extends Plot {
       .attr('fill', d => this.colours.bars[d])
   }
 
-  renderStep(group, id, units, data, stepIndex, explorer, binOffset) {
+  renderStep(group, id, units, data, stepIndex, explorer, binOffset, maxValue) {
     const height = explorer.getUnitSize() * units
     const binWidth = explorer.getBinWidth()
     const barWidth = binWidth * 0.9
     const xOffset = (binWidth - barWidth) / 2
     const usableHeight = height - this.margin.bottom - this.margin.top
 
+    data = data.map(d => isArray(d) ? d : [d])
+
     const yScale = scaleLinear()
-      .domain([0, 1])
+      .domain(getDataDomain(data, maxValue))
       .range([usableHeight, 0])
 
     group
       .on('mouseover', (d) => {
         const overlay = explorer.getOverlayForPlot(id)
         const { data } = d
-        // console.log('DDD', data)
         overlay
           .selectAll('g.hotspot')
           .attr('opacity', 1)
