@@ -43,7 +43,8 @@ export default class BarPlot extends Plot {
     this.colours = options.colours || {
       bars: ['#99999955', '#999999'],
       font: '#550',
-      bubble: '#bbbbbbcc'
+      bubble: '#bbbbbbcc',
+      bubbleStroke: '#bbbbbbff'
     }
     this.fontSize = options.fontSize || 10
   }
@@ -101,10 +102,12 @@ export default class BarPlot extends Plot {
         overlay
           .selectAll('g.hotspot')
           .attr('opacity', 1)
-          .attr('transform', `translate(${binOffset}, ${-this.fontSize * 2.5})`)
+          // .attr('transform', `translate(${binOffset}, ${-this.fontSize * 2.5})`)
+          .attr('transform', `translate(${binOffset}, ${usableHeight-this.fontSize*3.5})`)
           .selectAll('text')
           .data(reverse(clone(data)))
           .join('text')
+          .attr('transform', `translate(${ - binWidth}, 0)`)
           .attr('text-anchor', 'middle')
           .attr('dy', (d, idx) => this.fontSize * (idx + 1) + this.fontSize / 2)
           .attr('dx', binWidth / 2)
@@ -152,14 +155,26 @@ export default class BarPlot extends Plot {
     const rectSize = this.fontSize * 3
 
     hotspot
+      .selectAll('line')
+      .data(d => [d])
+      .join('line')
+      .attr('transform', `translate(${-binWidth / 2 + 1}, ${rectSize/2})`)
+      .attr('x1', rectSize/2)
+      .attr('y1', 0)
+      .attr('x2', binWidth)
+      .attr('y2', 0)
+      .attr('stroke', this.colours.bubbleStroke)
+
+    hotspot
       .selectAll('rect')
+      .attr('transform', `translate(${ - binWidth}, 0)`)
       .data(d => [d])
       .join('rect')
       .attr('fill', this.colours.bubble)
+      .attr('stroke', this.colours.bubbleStroke)
       .attr('width', rectSize)
       .attr('height', rectSize)
       .attr('x',  - rectSize / 2 + binWidth / 2)
-      .attr('rx', rectSize * 0.3)
   }
 
 }

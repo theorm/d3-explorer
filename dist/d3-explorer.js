@@ -858,7 +858,8 @@ function (_Plot) {
     _this.colours = options.colours || {
       bars: ['#99999955', '#999999'],
       font: '#550',
-      bubble: '#bbbbbbcc'
+      bubble: '#bbbbbbcc',
+      bubbleStroke: '#bbbbbbff'
     };
     _this.fontSize = options.fontSize || 10;
     return _this;
@@ -908,7 +909,8 @@ function (_Plot) {
       group.on('mouseover', function (d) {
         var overlay = explorer.getOverlayForPlot(id);
         var data = d.data;
-        overlay.selectAll('g.hotspot').attr('opacity', 1).attr('transform', "translate(".concat(binOffset, ", ").concat(-_this3.fontSize * 2.5, ")")).selectAll('text').data(lodashEs.reverse(lodashEs.clone(data))).join('text').attr('text-anchor', 'middle').attr('dy', function (d, idx) {
+        overlay.selectAll('g.hotspot').attr('opacity', 1) // .attr('transform', `translate(${binOffset}, ${-this.fontSize * 2.5})`)
+        .attr('transform', "translate(".concat(binOffset, ", ").concat(usableHeight - _this3.fontSize * 3.5, ")")).selectAll('text').data(lodashEs.reverse(lodashEs.clone(data))).join('text').attr('transform', "translate(".concat(-binWidth, ", 0)")).attr('text-anchor', 'middle').attr('dy', function (d, idx) {
           return _this3.fontSize * (idx + 1) + _this3.fontSize / 2;
         }).attr('dx', binWidth / 2).style('font-size', "".concat(_this3.fontSize, "px")).style('font-weight', 'bold').text(function (d) {
           var ref = getReferenceValue(d);
@@ -937,9 +939,12 @@ function (_Plot) {
       if (!lodashEs.isFinite(binWidth)) return;
       var hotspot = group.selectAll('g.hotspot').data([null]).join('g').attr('class', 'hotspot').attr('transform', "translate(".concat(binWidth / 2 + 1, ", ").concat(height, ")")).attr('opacity', 0);
       var rectSize = this.fontSize * 3;
-      hotspot.selectAll('rect').data(function (d) {
+      hotspot.selectAll('line').data(function (d) {
         return [d];
-      }).join('rect').attr('fill', this.colours.bubble).attr('width', rectSize).attr('height', rectSize).attr('x', -rectSize / 2 + binWidth / 2).attr('rx', rectSize * 0.3);
+      }).join('line').attr('transform', "translate(".concat(-binWidth / 2 + 1, ", ").concat(rectSize / 2, ")")).attr('x1', rectSize / 2).attr('y1', 0).attr('x2', binWidth).attr('y2', 0).attr('stroke', this.colours.bubbleStroke);
+      hotspot.selectAll('rect').attr('transform', "translate(".concat(-binWidth, ", 0)")).data(function (d) {
+        return [d];
+      }).join('rect').attr('fill', this.colours.bubble).attr('stroke', this.colours.bubbleStroke).attr('width', rectSize).attr('height', rectSize).attr('x', -rectSize / 2 + binWidth / 2);
     }
   }]);
 
